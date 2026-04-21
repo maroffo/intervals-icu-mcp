@@ -1,0 +1,18 @@
+# ABOUTME: Git ignore rules for intervals-icu-mcp
+# ABOUTME: Excludes binaries, editor artifacts, env files, local plan/session reports
+
+/bin/
+/intervals-icu-mcp
+*.test
+*.out
+coverage.*
+
+.env
+.env.local
+
+.DS_Store
+.idea/
+.vscode/
+
+/quality_reports/session_logs/
+/quality_reports/research/
