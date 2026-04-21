@@ -16,8 +16,10 @@ Format: Keep-a-Changelog; project follows SemVer.
   (profile/fitness/folders).
 - HTTP Basic auth against intervals.icu API v1.
 - Client-side rate limiting (3 rps) + retry on 429/5xx with exponential backoff
-  and Retry-After header support.
+  and Retry-After header support (RFC 7231 seconds + HTTP-date, capped at 60s).
 - stdio transport via mark3labs/mcp-go v0.48.0.
 - Graceful shutdown on SIGINT/SIGTERM.
 - Structured logging on stderr via log/slog.
 - Opt-in integration tests (build tag `integration`).
+- Apache License 2.0.
+- GitHub Actions CI (vet + race-enabled tests + build on Go 1.25 and 1.26).
