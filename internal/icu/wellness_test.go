@@ -124,9 +124,9 @@ func TestUpdateWellness_PutBodyAndResponse(t *testing.T) {
 	}))
 
 	fields := map[string]any{
-		"weight":   73.1,
-		"fatigue":  3,
-		"mood":     4,
+		"weight":    73.1,
+		"fatigue":   3,
+		"mood":      4,
 		"sleepSecs": 27000,
 	}
 	out, err := c.UpdateWellness(context.Background(), "2026-04-21", fields)

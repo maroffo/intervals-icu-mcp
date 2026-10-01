@@ -51,7 +51,7 @@ func run(ctx context.Context, logger *slog.Logger) error {
 	cfg, err := config.Load()
 	if err != nil {
 		if errors.Is(err, config.ErrMissingAPIKey) {
-			return errors.New(`INTERVALS_API_KEY is required. Set it in the "env" block of your MCP client config (see README).`)
+			return errors.New(`INTERVALS_API_KEY is required. Set it in the "env" block of your MCP client config (see README)`)
 		}
 		return err
 	}
