@@ -1,5 +1,5 @@
 # ABOUTME: Local MCP server in Go for intervals.icu REST API
-# ABOUTME: Exposes 13 tools (activities, wellness, events, athlete) over stdio
+# ABOUTME: Exposes 15 tools (activities, wellness, events, athlete) over stdio
 
 # intervals-icu-mcp
 
@@ -34,9 +34,9 @@ min endurance ride for Saturday"_, without leaving the chat.
 
 ## Features
 
-- **13 tools** covering activities, wellness, calendar events, and athlete fitness
+- **15 tools** covering activities, wellness, calendar events, and athlete fitness
 - **Safe by default**: rate-limited (3 req/s) with retry on 429/5xx, bounded Retry-After
-- **Read + write**: get activities, read/update wellness, full CRUD on calendar events
+- **Read + write**: get activities and edit their metadata, read/update wellness, full CRUD on calendar events
 - **Graceful shutdown** on SIGINT/SIGTERM, structured JSON logging on stderr
 - **Tolerant parsing**: raw JSON pass-through so schema changes on intervals.icu don't break the server
 - **Zero config beyond your API key**: sensible defaults, works out of the box with a coach or personal account
@@ -61,7 +61,7 @@ go install github.com/maroffo/intervals-icu-mcp@latest
   }
 }
 
-# 3. Restart your MCP client. The 13 tools are now available.
+# 3. Restart your MCP client. The 15 tools are now available.
 ```
 
 Get your API key at [intervals.icu Settings → Developer Settings](https://intervals.icu/settings).
@@ -136,10 +136,11 @@ the client config file varies; the `mcpServers` block is identical.
 
 ## Tool catalog
 
-All tools return raw JSON as text. Mutating tools are tagged with `MUTATES DATA`
+All tools return raw JSON as text, except `update_activity`, which returns a
+summary (see below and ADR-0005). Mutating tools are tagged with `MUTATES DATA`
 in their description and carry the MCP `destructive` annotation.
 
-### Activities (read)
+### Activities
 
 | Tool | Description | Required args |
 |---|---|---|
@@ -147,6 +148,18 @@ in their description and carry the MCP `destructive` annotation.
 | `get_activity` | Get a single activity by id | `activity_id` |
 | `get_activity_streams` | Per-second data streams (watts, HR, cadence…) | `activity_id`; `types` optional |
 | `get_activity_intervals` | Detected or manual intervals for an activity | `activity_id` |
+| `update_activity` | Edit an activity's metadata (partial update) | `activity_id`, `activity` (object) |
+
+`update_activity` sends only the fields you pass, and only from this whitelist:
+`type`, `name`, `description`, `icu_rpe`, `feel`, `commute`, `trainer`,
+`icu_ignore_hr`, `icu_ignore_power`, `icu_ignore_time`. Any other field is
+rejected, and `type` must be one of the activity types in the intervals.icu API
+spec (`Ride`, `Run`, `VirtualRide`, ...). It returns the activity id, the updated
+values, and the new `icu_training_load` / `icu_ctl` / `icu_atl` when present.
+Activities imported from Strava cannot be edited through the intervals.icu API;
+the tool reports that with a clear message instead of a raw HTTP error. This is
+best effort: the API does not document its Strava error, so detection is a
+heuristic that has not been verified against a live Strava activity (ADR-0005).
 
 ### Wellness
 
@@ -224,7 +237,7 @@ intervals-icu-mcp/
 │   ├── config/                   # env var loader
 │   ├── icu/                      # HTTP client + domain methods
 │   │   ├── client.go             # shared transport, auth, retry, rate limit
-│   │   ├── activities.go         # list/get/streams/intervals
+│   │   ├── activities.go         # list/get/streams/intervals/update
 │   │   ├── wellness.go           # get/list/update
 │   │   ├── events.go             # CRUD
 │   │   └── athlete.go            # profile/fitness/folders
@@ -243,12 +256,13 @@ See [`docs/adr/`](docs/adr/) for the decision records:
 - [ADR-0002](docs/adr/0002-transport-stdio.md) — stdio-only transport
 - [ADR-0003](docs/adr/0003-client-rate-limit-3rps.md) — Client-side rate limit at 3 req/s
 - [ADR-0004](docs/adr/0004-tolerant-json-passthrough.md) — Tolerant JSON pass-through, no strict DTOs
+- [ADR-0005](docs/adr/0005-whitelisted-activity-update.md): Whitelisted input and shaped output for `update_activity`
 
 Behaviour notes:
 
 - **Authentication**: HTTP Basic, username literal `API_KEY`, password = your API key (intervals.icu convention).
 - **Retry**: automatic retry on `429` and `5xx` up to 3 attempts with exponential backoff, honouring `Retry-After` (seconds or HTTP-date), capped at 60s.
-- **Typing**: responses pass through as raw JSON so new or renamed fields don't break anything.
+- **Typing**: responses pass through as raw JSON so new or renamed fields don't break anything (except `update_activity`, which returns a summary; ADR-0005).
 - **Errors**: upstream error bodies are truncated to 200 chars in the error message; the full body remains accessible programmatically via `APIError.Body`.
 - **Shutdown**: `SIGINT`/`SIGTERM` cancel the server context and close stdio cleanly.
 
