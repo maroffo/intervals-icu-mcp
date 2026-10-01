@@ -5,9 +5,43 @@
 
 ## Project Overview
 
-Local MCP server in Go exposing intervals.icu REST API to MCP clients over stdio. Built from scratch in a single session with parallel software-engineer agents. v0.1.0 ships 14 tools across 4 domains (activities, wellness, events, athlete).
+Local MCP server in Go exposing intervals.icu REST API to MCP clients over stdio. Built from scratch in a single session with parallel software-engineer agents. v0.1.0 shipped 14 tools across 4 domains (activities, wellness, events, athlete); v0.2.0 adds `update_activity` (15 tools).
 
 ## Lessons Learned
+
+### 2026-10-01: A resource schema can hide its enum on sibling schemas
+
+**Context:** `update_activity` had to validate `type` against the intervals.icu enum "from the OpenAPI spec".
+
+**Problem:** `Activity.type` is a bare `string` in the spec. The 60-value activity-type enum lives on sibling schemas (`SportInfo.type`, `SportSettings.types`, `Folder.activity_types`).
+
+**Takeaway:** Before concluding a spec has no enum, search the whole document for one (`jq` over every `enum` containing a known value). Check it is the only candidate before copying it.
+
+### 2026-10-01: The spec documents the rule, not the error
+
+**Context:** The spec says "Strava activities cannot be updated" but documents no error status or body.
+
+**Takeaway:** When the error shape is undocumented and no live account is at hand, ship a narrow heuristic (4xx + body mention), say "unverified" in CHANGELOG/README/ADR, and log the live check as tech debt. Don't present a guess as a guarantee in user-facing docs.
+
+### 2026-10-01: SDK defaults can make assertions tautological
+
+**Context:** A schema test asserted `DestructiveHint == true` on `update_activity`.
+
+**Problem:** mcp-go v0.48.0 `NewTool` already defaults `DestructiveHint` to true, so the assertion could never fail (a hand mutant removing the option survived).
+
+**Takeaway:** Assert what the default does not give you: for a mutating tool, that `ReadOnlyHint` is not set.
+
+### 2026-10-01: Reviewer worktrees start from the default branch
+
+**Context:** Worktree-isolated reviewers were launched on uncommitted work.
+
+**Takeaway:** The worktree materializes at the default branch, not at the working tree. Ship uncommitted work to reviewers as a patch file and have them `git apply` it in their own copy.
+
+### 2026-10-01: Documented counts drift; count from code
+
+**Context:** README and CHANGELOG said v0.1.0 had 13 tools; the code registered 14. Adding one tool carried the error forward until a reviewer counted.
+
+**Takeaway:** Derive documented counts from the code (`grep -c 'mcp.NewTool(' internal/tools/*.go`), never by incrementing the previous number.
 
 ### 2026-04-21: Parallel agents + go.mod = coordination blind spot
 
