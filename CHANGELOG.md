@@ -8,6 +8,8 @@ Format: Keep-a-Changelog; project follows SemVer.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-01
+
 ### Added
 - `update_activity` tool (MUTATES DATA): partial `PUT /activity/{id}` limited to
   `type, name, description, icu_rpe, feel, commute, trainer, icu_ignore_hr,
@@ -22,6 +24,10 @@ Format: Keep-a-Changelog; project follows SemVer.
 ### Changed
 - All activity tools reject `.` and `..` as `activity_id`: `url.PathEscape`
   leaves them as dot segments, which could resolve to another endpoint.
+
+### Fixed
+- The missing-API-key startup error no longer ends with a period
+  (staticcheck ST1005); `make lint` passes.
 
 ## [0.1.0] - 2026-04-21
 

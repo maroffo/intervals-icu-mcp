@@ -92,7 +92,7 @@ make install        # to $GOPATH/bin
 The binary stamps its version via `-ldflags`:
 
 ```bash
-go build -ldflags "-X main.serverVersion=0.1.0" -o bin/intervals-icu-mcp .
+go build -ldflags "-X main.serverVersion=0.2.0" -o bin/intervals-icu-mcp .
 ```
 
 Without `-ldflags`, the version falls back to `dev+<git-revision>` when built
@@ -207,6 +207,9 @@ Once registered, you can drive intervals.icu through natural language:
 > **Activity deep-dive**
 > "Look at my last threshold interval session: pull the intervals, compute average power and drift, and flag anything unusual vs my FTP."
 
+> **Activity tagging**
+> "Rename yesterday's ride to 'Sweet spot 3x15', set RPE 7 and mark it as a trainer session. What did that do to my training load?"
+
 > **Race prep**
 > "What races do I have scheduled in the next 8 weeks? Pull my fitness curve and tell me if I'm on track."
 
@@ -289,6 +292,11 @@ Behaviour notes:
 ### Coach account querying another athlete
 
 - Set `INTERVALS_ATHLETE_ID` to the target athlete id. Your API key must be authorised for that athlete (otherwise you'll see `403` instead of `401`).
+
+### Editing an activity imported from Strava fails
+
+- intervals.icu does not allow reading or editing Strava-sourced activities through its API (`get_activity` returns an empty stub for them). `update_activity` reports this with a clear message instead of a raw HTTP error.
+- If you get a raw `4xx` instead, the activity may still be Strava-sourced: the API does not document its Strava error, so detection is best effort (see [ADR-0005](docs/adr/0005-whitelisted-activity-update.md)).
 
 ### Version debugging
 
