@@ -16,3 +16,4 @@ coverage.*
 
 /quality_reports/session_logs/
 /quality_reports/research/
+/quality_reports/reviews/

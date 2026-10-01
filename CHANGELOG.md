@@ -8,6 +8,21 @@ Format: Keep-a-Changelog; project follows SemVer.
 
 ## [Unreleased]
 
+### Added
+- `update_activity` tool (MUTATES DATA): partial `PUT /activity/{id}` limited to
+  `type, name, description, icu_rpe, feel, commute, trainer, icu_ignore_hr,
+  icu_ignore_power, icu_ignore_time`. Other fields, wrong JSON types and
+  activity types outside the API spec enum are rejected before any request.
+  Returns the id, the updated values and the new `icu_training_load` /
+  `icu_ctl` / `icu_atl`. See ADR-0005.
+- Strava-sourced activities get a clear error instead of a raw HTTP error.
+  Detection is heuristic (the API spec does not document the error shape) and
+  has not been verified against a live Strava activity.
+
+### Changed
+- All activity tools reject `.` and `..` as `activity_id`: `url.PathEscape`
+  leaves them as dot segments, which could resolve to another endpoint.
+
 ## [0.1.0] - 2026-04-21
 
 ### Added

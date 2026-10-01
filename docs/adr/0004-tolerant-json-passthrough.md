@@ -6,6 +6,7 @@
 - **Status**: Accepted
 - **Date**: 2026-04-21
 - **Author**: Max
+- **Amended by**: [ADR-0005](0005-whitelisted-activity-update.md) for `update_activity` (whitelisted input, shaped output)
 
 ## Context
 
