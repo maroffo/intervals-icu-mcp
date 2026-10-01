@@ -5,7 +5,7 @@
 
 ## Project Overview
 
-Local MCP server in Go exposing intervals.icu REST API to MCP clients over stdio. Built from scratch in a single session with parallel software-engineer agents. v0.1.0 ships 13 tools across 4 domains (activities, wellness, events, athlete).
+Local MCP server in Go exposing intervals.icu REST API to MCP clients over stdio. Built from scratch in a single session with parallel software-engineer agents. v0.1.0 ships 14 tools across 4 domains (activities, wellness, events, athlete).
 
 ## Lessons Learned
 

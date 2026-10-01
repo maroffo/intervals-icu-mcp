@@ -353,8 +353,8 @@ func TestDo_RespectsRetryAfterDuration(t *testing.T) {
 	t.Cleanup(ts.Close)
 
 	var (
-		mu      sync.Mutex
-		slept   []time.Duration
+		mu    sync.Mutex
+		slept []time.Duration
 	)
 	recordSleep := func(_ context.Context, d time.Duration) error {
 		mu.Lock()

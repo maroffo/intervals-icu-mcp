@@ -26,7 +26,7 @@ Format: Keep-a-Changelog; project follows SemVer.
 ## [0.1.0] - 2026-04-21
 
 ### Added
-- Initial MCP server with 13 tools: activities (list/get/streams/intervals),
+- Initial MCP server with 14 tools: activities (list/get/streams/intervals),
   wellness (get/list/update), events (list/create/update/delete), athlete
   (profile/fitness/folders).
 - HTTP Basic auth against intervals.icu API v1.
