@@ -48,23 +48,18 @@ min endurance ride for Saturday"_, without leaving the chat.
 # 1. Install
 go install github.com/maroffo/intervals-icu-mcp@latest
 
-# 2. Register with Claude Code (or your MCP client)
-#    Edit ~/.claude.json and add:
-{
-  "mcpServers": {
-    "intervals-icu": {
-      "command": "/absolute/path/to/intervals-icu-mcp",
-      "env": {
-        "INTERVALS_API_KEY": "your-key-from-intervals.icu/settings"
-      }
-    }
-  }
-}
+# 2. Register with Claude Code (user scope: available in every project)
+claude mcp add intervals-icu -s user \
+  -e INTERVALS_API_KEY=your-key-from-intervals.icu/settings \
+  -- "$(go env GOPATH)/bin/intervals-icu-mcp"
 
-# 3. Restart your MCP client. The 15 tools are now available.
+# 3. Check that it connects, then start a new Claude Code session.
+#    The 15 tools are now available.
+claude mcp list
 ```
 
 Get your API key at [intervals.icu Settings → Developer Settings](https://intervals.icu/settings).
+For Claude Desktop and other MCP clients, see [Client integration](#client-integration).
 
 ## Installation
 
@@ -110,7 +105,31 @@ from a git working copy, else `dev`.
 
 ### Client integration
 
-#### Claude Code (`~/.claude.json`)
+#### Claude Code
+
+Register the server with the `claude` CLI:
+
+```bash
+claude mcp add intervals-icu -s user \
+  -e INTERVALS_API_KEY=... \
+  -- /absolute/path/to/intervals-icu-mcp
+```
+
+- `-s user` makes the server available in every project; the default scope
+  (`local`) enables it only in the current directory.
+- Keep the server name before `-e`: the flag accepts multiple values and would
+  otherwise consume the name as an environment variable.
+- Add `-e INTERVALS_ATHLETE_ID=<id>` only for coach accounts.
+- `claude mcp list` should report `intervals-icu` as connected; `/mcp` inside a
+  session shows the same status.
+
+The key is stored in plain text in `~/.claude.json`. Avoid editing that file by
+hand while Claude Code is running: Claude Code rewrites it, and manual changes
+can be lost.
+
+#### Claude Desktop
+
+Add this block to `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows, then restart Claude Desktop:
 
 ```json
 {
@@ -124,10 +143,6 @@ from a git working copy, else `dev`.
   }
 }
 ```
-
-#### Claude Desktop
-
-Same `mcpServers` block, placed in `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows.
 
 #### Other clients (Cursor, Continue, Windsurf, Zed, …)
 
@@ -276,6 +291,7 @@ Behaviour notes:
 - The `command` path must be **absolute** (no `~`, no relative paths).
 - The binary must be executable: `chmod +x /absolute/path/to/intervals-icu-mcp`.
 - Restart the client after editing the MCP config; stdio servers are spawned at client startup.
+- Claude Code: `claude mcp list` shows whether the server starts and connects.
 - Check the client log (Claude Desktop: Developer → Open log) for spawn errors.
 
 ### `401 Unauthorized`

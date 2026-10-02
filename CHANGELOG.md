@@ -8,6 +8,10 @@ Format: Keep-a-Changelog; project follows SemVer.
 
 ## [Unreleased]
 
+### Changed
+- README: register with Claude Code via `claude mcp add` instead of hand-editing
+  `~/.claude.json`; the JSON block now lives under Claude Desktop.
+
 ## [0.2.0] - 2026-10-01
 
 ### Added
